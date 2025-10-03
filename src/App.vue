@@ -1,7 +1,6 @@
 <script setup>
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
-import Drawer from './components/Drawer.vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import axios from 'axios'
 // const items = [
@@ -89,37 +88,58 @@ const filters = reactive({
   sortBy: 'title',
   searchQuery: '',
 })
+const fetchFavorites = async () => {
+  try {
+    const { data } = await axios.get('https://34530b615c1cfbfa.mokky.dev/favorites')
+
+    items.value = items.value.map((item) => {
+      const favorite = data.find((favorite) => favorite.parentId === item.id)
+
+      if (!favorite) {
+        return item
+      }
+      return {
+        ...item,
+        isFavorite: true,
+        favoriteId: favorite.id,
+      }
+    })
+
+    console.log('Items after favorites:', items.value) // И этот
+  } catch (e) {
+    console.log(e)
+  }
+}
 const fetchItems = async () => {
   try {
     const params = {
       sortBy: filters.sortBy,
-      // searchQuery: filters.searchQuery,
     }
     if (filters.searchQuery) {
-      params.title = `*${filters.searchQuery}*`;
+      params.title = `*${filters.searchQuery}*`
     }
     const { data } = await axios.get('https://34530b615c1cfbfa.mokky.dev/items', {
-      params
+      params,
     })
-    console.log(data)
-    items.value = data
+
+    items.value = data.map((obj) => ({
+      ...obj,
+      isFavorite: false,
+      favoriteId: null,
+      isAdded: false,
+    }))
+    // console.log(items.value)
   } catch (e) {
     console.log(e)
   }
 }
 
-onMounted(fetchItems)
+onMounted(async () => {
+  await fetchItems()
+  await fetchFavorites()
+})
 watch(filters, fetchItems)
 
-// watch(filters, async () => {
-//   try {
-//     const { data } = await axios.get(
-//       'https://34530b615c1cfbfa.mokky.dev/items?sortBy=' + filters.sortBy,
-//     )
-//     console.log(data)
-//     items.value = data
-//   } catch (e) {}
-// })
 const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
 }
@@ -127,6 +147,28 @@ const onChangeSelect = (event) => {
 const onChangeInput = (event) => {
   filters.searchQuery = event.target.value
 }
+
+const addToFavorite = async (item) => {
+  try {
+    if (!item.isFavorite) {
+      const obj = {
+        parentId: item.id,
+      }
+      const { data } = await axios.post('https://34530b615c1cfbfa.mokky.dev/favorites', obj)
+      item.isFavorite = true
+      item.favoriteId = data.id
+      console.log(data)
+    } else {
+      await axios.delete(`https://34530b615c1cfbfa.mokky.dev/favorites/${item.favoriteId}`)
+      item.isFavorite = false
+      item.favoriteId = null
+    }
+
+  } catch (err) {
+    console.log(err)
+  }
+}
+// provide("addToFavorite", addToFavorite)
 </script>
 
 <template>
@@ -137,23 +179,24 @@ const onChangeInput = (event) => {
       <div class="flex justify-between items-center">
         <h2 class="text-3xl font-bold mb-8">Все кроссовки</h2>
         <div class="flex gap-4">
-          <select @change="onChangeSelect" class="py-2 px-3 border rounded-md outline-none">
+          <select class="py-2 px-3 border rounded-md outline-none" @change="onChangeSelect">
             <option class="" value="name">По названию</option>
             <option value="price">По цене (д)</option>
             <option value="-price">По цене (де)</option>
           </select>
           <div class="relative">
             <img class="absolute left-4 top-3" src="/search.svg" alt="" />
-            <input @input="onChangeInput"
+            <input
               class="border rounded-md py-2 pl-11 pr-4 outline-none focus:border-gray-400"
               type="text"
               placeholder="Поиск..."
+              @input="onChangeInput"
             />
           </div>
         </div>
       </div>
       <div class="mt-10">
-        <CardList :items="items" />
+        <CardList :items="items" @add-to-favorite="addToFavorite" />
       </div>
     </div>
   </div>

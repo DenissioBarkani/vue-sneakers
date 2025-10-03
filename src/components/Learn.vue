@@ -1,4 +1,6 @@
- <!-- опшенс апи -->
+<!-- eslint-disable vue/multi-word-component-names -->
+
+<!-- опшенс апи -->
 <!-- <script>
 export default {
     data() {
@@ -60,7 +62,7 @@ function increment() {
   <input v-model="count"/>
 </template> -->
 
-<!-- 
+<!--
 <script setup>
 defineProps({
   title: String,
