@@ -1,4 +1,4 @@
-# vue-sneakers
+# Сделано по гайду vue-sneakers
 Vite
 Vue 3
 Vue Router
@@ -9,6 +9,8 @@ Composition API / Options API
 ESLint
 Prettier
 lodash.Debounce
+
+Сайт: https://denissiobarkani.github.io/vue-sneakers/
 
 ## Project Setup
 
