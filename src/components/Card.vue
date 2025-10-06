@@ -14,6 +14,7 @@ defineProps({
 // const onClickAdd = () => {
 //   alert("Добавлен")
 // }
+// const vi = Boolean(props.onClickAdd)
 
 </script>
 
@@ -37,7 +38,7 @@ defineProps({
           <span class="text-slate-400">Цена: </span>
           <b>{{ price }} руб.</b>
         </div>
-        <img :src="!isAdded ? '/plus.svg' : '/checked.svg'" alt="Plus" @click="onClickAdd" />
+        <img v-if="onClickAdd" :src="!isAdded ? '/plus.svg' : '/checked.svg'" alt="Plus" @click="onClickAdd" />
       </div>
     </div>
   </div>
