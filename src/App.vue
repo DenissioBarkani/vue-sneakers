@@ -2,7 +2,6 @@
 import Header from './components/Header.vue'
 
 import { computed, provide, ref, watch } from 'vue'
-import axios from 'axios'
 import Drawer from './components/Drawer.vue'
 
 
@@ -10,27 +9,9 @@ import Drawer from './components/Drawer.vue'
 const cart = ref([])
 const totalPrice = computed(() => cart.value.reduce((acc, item) => acc + item.price, 0))
 const vatPrice = computed(() => Math.round((totalPrice.value * 5) / 100))
-const isCreatingOrder = ref(false)
 
-const cartIsEmpy = computed(() => cart.value.length === 0)
-const cartButtonDisabled = computed(() => isCreatingOrder.value || cartIsEmpy.value)
 
-const createOrder = async () => {
-  try {
-    isCreatingOrder.value = true
-    const { data } = await axios.post('https://34530b615c1cfbfa.mokky.dev/orders', {
-      items: cart.value,
-      totalPrice: totalPrice.value,
-    })
-    cart.value = []
 
-    return data
-  } catch (err) {
-    console.log(err)
-  } finally {
-    isCreatingOrder.value = false
-  }
-}
 
 watch(
   cart,
@@ -98,8 +79,6 @@ provide('cart', {
     v-if="drawerOpen"
     :total-price="totalPrice"
     :vat-price="vatPrice"
-    :disabled-button="cartButtonDisabled"
-    @create-order="createOrder"
   />
   <div class="bg-white w-4/5 m-auto rounded-xl shadow-xl mt-10">
     <Header :total-price="totalPrice" @open-drawer="openDrawer" />
