@@ -173,34 +173,14 @@ onMounted(async () => {
 })
 watch(filters, fetchItems)
 
-// watch(
-//   cart,
-//   () => {
-//     items.value = items.value.map((item) => ({
-//       ...item,
-//       isAdded: cart.value.some((cartItem) => cartItem.id === item.id),
-//     }))
-//   },
-//   { deep: true }
-// )
-
-// watch(
-//   cart,
-//   () => {
-//     localStorage.setItem('cart', JSON.stringify(cart.value))
-//   },
-//   { deep: true },
-// )
 
 watch(
   cart,
   () => {
-    // 1) синхронизируем isAdded
     items.value = items.value.map((item) => ({
       ...item,
       isAdded: cart.value.some((cartItem) => cartItem.id === item.id),
     }))
-    // 2) сохраняем корзину
     localStorage.setItem('cart', JSON.stringify(cart.value))
   },
   { deep: true }
