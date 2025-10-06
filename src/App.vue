@@ -173,20 +173,39 @@ onMounted(async () => {
 })
 watch(filters, fetchItems)
 
-watch(cart, () => {
-  items.value = items.value.map((item) => ({
-    ...item,
-    isAdded: false,
-  }))
-})
+// watch(
+//   cart,
+//   () => {
+//     items.value = items.value.map((item) => ({
+//       ...item,
+//       isAdded: cart.value.some((cartItem) => cartItem.id === item.id),
+//     }))
+//   },
+//   { deep: true }
+// )
+
+// watch(
+//   cart,
+//   () => {
+//     localStorage.setItem('cart', JSON.stringify(cart.value))
+//   },
+//   { deep: true },
+// )
 
 watch(
   cart,
   () => {
+    // 1) синхронизируем isAdded
+    items.value = items.value.map((item) => ({
+      ...item,
+      isAdded: cart.value.some((cartItem) => cartItem.id === item.id),
+    }))
+    // 2) сохраняем корзину
     localStorage.setItem('cart', JSON.stringify(cart.value))
   },
-  { deep: true },
+  { deep: true }
 )
+
 
 const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
@@ -216,12 +235,27 @@ const addToFavorite = async (item) => {
   }
 }
 
+// const addToCart = (item) => {
+//   cart.value.push(item)
+//   item.isAdded = true
+// }
+// const removeFromCart = (item) => {
+//   cart.value.splice(cart.value.indexOf(item), 1)
+//   item.isAdded = false
+// }
+
 const addToCart = (item) => {
-  cart.value.push(item)
+  // не добавляем дубликаты
+  if (!cart.value.some((ci) => ci.id === item.id)) {
+    cart.value.push(item)
+  }
   item.isAdded = true
 }
 const removeFromCart = (item) => {
-  cart.value.splice(cart.value.indexOf(item), 1)
+  const idx = cart.value.findIndex((ci) => ci.id === item.id)
+  if (idx !== -1) {
+    cart.value.splice(idx, 1)
+  }
   item.isAdded = false
 }
 
